@@ -11,4 +11,6 @@ pids
 logs
 results
 
+node_nodules
+.DS_STORE
 npm-debug.log
