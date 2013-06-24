@@ -6,7 +6,7 @@
   "scripts": {
     "test": "make test"
   },
-  "repository": "https://github.com/ilsken/promised.git",
+  "repository": "https://github.com/ilsken/dip.git",
   "author": "Christopher Tarquini",
   "license": "MIT",
   "dependencies": {

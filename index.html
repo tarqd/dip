@@ -119,11 +119,26 @@ di.factory(&#39;username&#39;, function(user){
     return user.username
 })
 
-app.get(&#39;/user/:user_id/username&#39;, function(req, res){
+app.get(&#39;/user/:user_id/username&#39;, function(req, res, next){
     var rdi = di.create(req.params)
     rdi.call(function(username){
         res.send(username)
-    })
+    }).fail(next) // will call next(err) on failure
+})
+
+// Another method
+app.get(&#39;/user/:user_id/username&#39;, function(req, res, next){
+    di.create(req.params)
+      .inject(res.send, [&#39;username&#39;])
+      .call(res.send, res)
+      .fail(next)
+})
+
+// Without using inject
+app.get(&#39;/user/:user_id/username&#39;, function(req, res, next){
+    di.create(req.params)
+      .resolve([&#39;username&#39;])
+      .spread(res.send.bind(res))
 })</code></pre>
 <h4>Manually specifying dependencies</h4>
 <pre><code class="lang-javascript">DI.inject(fn, [&#39;foo&#39;])

@@ -72,11 +72,26 @@ di.factory('username', function(user){
 	return user.username
 })
 
-app.get('/user/:user_id/username', function(req, res){
+app.get('/user/:user_id/username', function(req, res, next){
 	var rdi = di.create(req.params)
 	rdi.call(function(username){
 		res.send(username)
-	})
+	}).fail(next) // will call next(err) on failure
+})
+
+// Another method
+app.get('/user/:user_id/username', function(req, res, next){
+	di.create(req.params)
+	  .inject(res.send, ['username'])
+	  .call(res.send, res)
+	  .fail(next)
+})
+
+// Without using inject
+app.get('/user/:user_id/username', function(req, res, next){
+	di.create(req.params)
+	  .resolve(['username'])
+	  .spread(res.send.bind(res))
 })
 ```
 
