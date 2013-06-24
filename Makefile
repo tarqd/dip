@@ -1,6 +1,6 @@
 docs:
 	@doxx --source lib --target docs 
 test:
-	@node test/index.js
+	@mocha test/index.js
 
 .PHONY: test docs
