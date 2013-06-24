@@ -139,6 +139,7 @@ app.get(&#39;/user/:user_id/username&#39;, function(req, res, next){
     di.create(req.params)
       .resolve([&#39;username&#39;])
       .spread(res.send.bind(res))
+      .fail(next)
 })</code></pre>
 <h4>Manually specifying dependencies</h4>
 <pre><code class="lang-javascript">DI.inject(fn, [&#39;foo&#39;])
