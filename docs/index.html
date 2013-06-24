@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width" charset="utf-8">
-    <title>promised</title>
+    <title>dip</title>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css">
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/docs.css">
@@ -54,7 +54,7 @@
     </div>
     <header id="overview" class="jumbotron subhead">
       <div class="container">
-        <h1>promised</h1>
+        <h1>dip</h1>
         <p class="lead"></p>
       </div>
     </header>
@@ -71,12 +71,56 @@
           </div>
         </div>
         <div class="span9">
-          <section id="Main"><h1>promised</h1>
-<p>==========</p>
-<pre><code class="lang-javascript">var di = new DependencyInjector({&#39;foo&#39;: &#39;bar&#39;})
- di.call(null, function(foo){
-     console.log(&#39;foo&#39;) // foo == &#39;bar&#39;
+          <section id="Main"><h1>dip - Dependency Injector w/ Promise Support</h1>
+<h3>What is it?</h3>
+<p><code>dip</code> provides dependency injection with automatic promise resolution, parent/child relationships and factory dependencies</p>
+<p>It&#39;s very similiar to angular&#39;s dependency injector, but works much better with standalone functions and on-the-fly dependencies (for example if you wanted to register a &#39;request&#39; dependency that resolves to the current http request)</p>
+<p>For now unresolved dependencies will resolve to <code>undefined</code></p>
+<h3>Installation</h3>
+<p><code>npm install --save dip</code></p>
+<h3>Examples</h3>
+<h4>Creating a dependency injector and a function that has dependencies</h4>
+<pre><code class="lang-javascript">var DI = require(&#39;dip&#39;)
+var di = new DI({&#39;foo&#39;: &#39;Hello&#39;, &#39;bar&#39;: &#39;World&#39;})
+
+function fn(foo, bar){
+    return foo + &#39;, &#39; + bar + &#39;!&#39;
+}</code></pre>
+<h4>Basic function call</h4>
+<pre><code class="lang-javascript"> di.call(function(foo){
+     console.log(foo) // foo == &#39;Hello&#39;
 })</code></pre>
+<h4>Manually specifying dependencies</h4>
+<pre><code class="lang-javascript">DI.inject(fn, [&#39;foo&#39;])
+// When you specify dependencies you can pass additional arguments, only specified dependencies will be resolved
+// returns a promise for the result
+di.call(fn, context, &#39;Guys&#39;, &#39;more args&#39;).then(function(result){
+    console.log(result) // result == &#39;Hello, Guys!&#39;
+})
+`</code></pre>
+<h4>Creating a resolved function (returns a promise)</h4>
+<pre><code class="lang-javascript">var fn = di.resolved(fn)
+fn().then(function(result){
+    console.log(result) // result == &#39;Hello, World!&#39;
+})</code></pre>
+<h4>Getting an resolved function (returns the return value)</h4>
+<pre><code class="lang-javascript">di.resolver(fn).then(function(resolvedFN){
+    console.log(resolvedFN()) // returns &#39;Hello, World!&#39;, no promise!
+})</code></pre>
+<h4>Manually resolving an array of dependencies</h4>
+<pre><code class="lang-javascript">// returns an array of dependencies either from the parameter names or specified manually via DI.inject(fn, arrayOfDependencies)
+var deps = DI.inject(fn) // [&#39;foo&#39;, &#39;bar&#39;] 
+
+// returns the parameter names
+var deps = DI.params(fn)
+
+// or just specify your own array
+var deps = [&#39;foo&#39;, &#39;bar&#39;]
+di.resolve(deps).spread(function(foo, bar){
+    console.log(foo) // foo == &#39;Hello&#39;
+    console.log(bar) // bar == &#39;World&#39;
+})</code></pre>
+<p>For more information read the docs (./docs/index.html) or look at the tests (./tests)</p>
 </section>
         </div>
       </div>

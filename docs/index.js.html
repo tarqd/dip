@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width" charset="utf-8">
-    <title>promised</title>
+    <title>dip</title>
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css">
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css">
     <link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/docs.css">
@@ -54,7 +54,7 @@
     </div>
     <header id="overview" class="jumbotron subhead">
       <div class="container">
-        <h1>promised</h1>
+        <h1>dip</h1>
         <p class="lead"></p>
       </div>
     </header>
@@ -85,17 +85,17 @@
               </li>
               <li><a href="#apply"><i class="alert alert-info"></i>apply</a>
               </li>
-              <li><a href="#mcall"><i class="alert alert-info"></i>mcall</a>
-              </li>
-              <li><a href="#mapply"><i class="alert alert-info"></i>mapply</a>
-              </li>
               <li><a href="#bind"><i class="alert alert-info"></i>bind</a>
               </li>
               <li><a href="#abind"><i class="alert alert-info"></i>abind</a>
               </li>
-              <li><a href="#mbind"><i class="alert alert-info"></i>mbind</a>
+              <li><a href="#aresolved"><i class="alert alert-info"></i>aresolved</a>
               </li>
-              <li><a href="#ambind"><i class="alert alert-info"></i>ambind</a>
+              <li><a href="#resolved"><i class="alert alert-info"></i>resolved</a>
+              </li>
+              <li><a href="#aresolver"><i class="alert alert-info"></i>aresolver</a>
+              </li>
+              <li><a href="#resolver"><i class="alert alert-info"></i>resolver</a>
               </li>
               <li><a href="#resolve"><i class="alert alert-info"></i>resolve</a>
               </li>
@@ -153,7 +153,7 @@ di.call(function(foo){
 })</code></pre>
  </div>
           <pre><code class="language-javascript">function DependencyInjector(registry, factories, parent){
-	if(factories instanceof DepedencyInjector &amp;&amp; parent === undefined){
+	if(factories instanceof DependencyInjector &amp;&amp; parent === undefined){
 		parent = factories
 		factories = undefined
 	}
@@ -209,7 +209,7 @@ di.call(function(foo){
 		return this.register(name.registry)
 	} else {
 		for (var x in name) {
-			if(name.hasOwnproperty(x)){
+			if(name.hasOwnProperty(x)){
 				this.registry[x] = name[x]
 			}
 		}
@@ -280,10 +280,10 @@ di.call(function(foo){
 	if(typeof name === 'string'){
 		this.factories[name] = fn
 	} else if (name instanceof DependencyInjector) {
-		return this.register(name.factories)
+		return this.factory(name.factories)
 	} else {
 		for (var x in name) {
-			if(name.hasOwnproperty(x)){
+			if(name.hasOwnProperty(x)){
 				this.factories[x] = name[x]
 			}
 		}
@@ -444,81 +444,11 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
           <div class="description"><p>Calls a function with injected dependencies, takes an array of arguments</p>
  </div>
           <pre><code class="language-javascript">DependencyInjector.prototype.apply = function(fn, context, args){
-	var deps 	= resolveFunction(this, fn)
-		,	fn 		= context ? fn.bind(context) : fn
-
-	if(args.length === 0) return deps.spread(fn)
-	else return deps.then(mergeArgs(args)).spread(fn)
-}</code></pre>
-          <section id="mcall">
-            <h1>mcall</h1>
-            <h5 class="subheader"></h5>
-            <p>
-              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.mcall()</span> -><span>Mixed	promise</span>
-            </p>
-          </section>
-          <table class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th style="width:20%">Option name</th>
-                <th style="width:20%">Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>method</td>
-                <td>String</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td>Mixed	arguments...	</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="description"><p>Calls a method on an object with injected dependencies</p>
- </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.mcall = function(obj, method){
-	return this.mapply(obj, method, slice(arguments, 2))
-}</code></pre>
-          <section id="mapply">
-            <h1>mapply</h1>
-            <h5 class="subheader"></h5>
-            <p>
-              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.mapply()</span> -><span>Mixed	promise</span>
-            </p>
-          </section>
-          <table class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th style="width:20%">Option name</th>
-                <th style="width:20%">Type</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>method</td>
-                <td>String</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td></td>
-                <td>Mixed	arguments...	</td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="description"><p>Calls a method on an object with injected dependencies</p>
- </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.mapply = function(obj, method, args){
-	var deps 	= resolveFunction(this, fn)
-		, fn 		= mapply(obj, method)
-
-	if(args.length === 0) return deps.then(fn)
-	else return deps.then(mergeArgs(args)).then(fn)
+	return resolveFunction(this, fn).spread(function(fn, deps){
+		fn 	= context ? fn.bind(context) : fn
+		if(args.length === 0) return Q.spread(deps, fn)
+		else return Q.spread(deps.concat(args), fn)
+	})
 }</code></pre>
           <section id="bind">
             <h1>bind</h1>
@@ -598,17 +528,20 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
 
 	return function dfBound(){
 		if (arguments.length &gt; 0) {
-			return self.apply(fn, context, slice(arguments, 0).concat(args))
+			return self.apply(fn, context, slice(arguments, 0).concat(args || []))
 		} else {
 			return self.apply(fn, context, args)
 		}
 	}
-}</code></pre>
-          <section id="mbind">
-            <h1>mbind</h1>
+}
+// aliases
+DependencyInjector.prototype.applyBind =
+DependencyInjector.prototype.abind</code></pre>
+          <section id="aresolved">
+            <h1>aresolved</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.mbind()</span> -><span>Function</span>
+              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.aresolved()</span> -><span>Function</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -621,32 +554,43 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
             </thead>
             <tbody>
               <tr>
-                <td>obj</td>
-                <td>Object</td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>method</td>
+                <td>fn</td>
                 <td>Function</td>
                 <td></td>
               </tr>
               <tr>
-                <td></td>
-                <td>Mixed	arguments...</td>
+                <td>context</td>
+                <td>Object</td>
                 <td></td>
               </tr>
             </tbody>
           </table>
-          <div class="description"><p>Returns a new function that will call an objects method with resolved dependencies<br>The returned function returns a promise for the result of the function call</p>
+          <div class="description"><p>Returns resolved vesion of a function. Dependencies will not be re-resolved on subsequent calls. Resolved function returns a promise for the return of <code>fn</code></p>
  </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.mbind = function(obj, method){
-	return this.ambind(obj, method, slice(arguments, 2))
-}</code></pre>
-          <section id="ambind">
-            <h1>ambind</h1>
+          <pre><code class="language-javascript">DependencyInjector.prototype.aresolved = function(fn, context, args) {
+	if(args &amp;&amp; !Array.isArray(args)) throw new Error('The `args` parameters must be an array')
+	var resolved = resolveFunction(this, fn)
+	return function resolvedFunction(){
+		return resolved.then(function(r){
+			var fn = r[0]
+				, deps = r[1]
+				, additionalArgs = mergeArgsArray(arguments, args)
+				, args = deps.concat(additionalArgs)
+
+			return Q.fcall(function(){
+				return fn.apply(context, args)
+			})
+		})
+	}
+}
+// aliases
+DependencyInjector.prototype.applyResolved =
+DependencyInjector.prototype.aresolved</code></pre>
+          <section id="resolved">
+            <h1>resolved</h1>
             <h5 class="subheader"></h5>
             <p>
-              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.ambind()</span> -><span>Function</span>
+              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.resolved()</span> -><span>Function</span>
             </p>
           </section>
           <table class="table table-bordered table-striped">
@@ -659,13 +603,47 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
             </thead>
             <tbody>
               <tr>
-                <td></td>
-                <td>Object</td>
+                <td>fn</td>
+                <td>Function</td>
                 <td></td>
               </tr>
               <tr>
-                <td>method</td>
+                <td>context</td>
+                <td>Object</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Returns resolved vesion of a function. Dependencies will not be re-resolved on subsequent calls. Resolved function returns a promise for the return of <code>fn</code></p>
+ </div>
+          <pre><code class="language-javascript">DependencyInjector.prototype.resolved = function(fn, context) {
+	var args = slice(arguments, 2)
+	return this.aresolved(fn, context, args)
+}</code></pre>
+          <section id="aresolver">
+            <h1>aresolver</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.aresolver()</span> -><span>Promise</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>fn</td>
                 <td>Function</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>context</td>
+                <td>Object</td>
                 <td></td>
               </tr>
               <tr>
@@ -675,18 +653,55 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
               </tr>
             </tbody>
           </table>
-          <div class="description"><p>Returns a new function that will call an objects method with resolved dependencies<br>The returned function returns a promise for the result of the function call</p>
+          <div class="description"><p>Returns a promise that resolves a completely resolved version of the function. Dependencies will not be re-resolved on subsequent calls. Resolved function will return the value of fn() (not a promise)</p>
  </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.ambind = function(obj, method, args){
-	var self = this
-
-	return function dfBound(){
-		if (arguments.length &gt; 0) {
-			return self.mapply(obj, method, slice(arguments, 0).concat(args))
-		} else {
-			return self.mapply(obj, method, args)
-		}
-	}
+          <pre><code class="language-javascript">DependencyInjector.prototype.aresolver = function(fn, context, args){
+	return resolveFunction(this, fn).spread(function(fn, deps){
+		var resolved = deps.concat(args || [])
+		return fn.bind.apply(fn, [context].concat(resolved))
+	})
+}
+//aliases
+DependencyInjector.prototype.applyResolver = 
+DependencyInjector.prototype.aresolver</code></pre>
+          <section id="resolver">
+            <h1>resolver</h1>
+            <h5 class="subheader"></h5>
+            <p>
+              <div class="label label-info radius ctx-type">method</div><span>DependencyInjector.prototype.resolver()</span> -><span>Promise</span>
+            </p>
+          </section>
+          <table class="table table-bordered table-striped">
+            <thead>
+              <tr>
+                <th style="width:20%">Option name</th>
+                <th style="width:20%">Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>fn</td>
+                <td>Function</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>context</td>
+                <td>Object</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>arguments..</td>
+                <td>Mixed</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="description"><p>Returns a promise that resolves a completely resolved version of the function. Dependencies will not be re-resolved on subsequent calls. Resolved function will return the value of fn() (not a promise)</p>
+ </div>
+          <pre><code class="language-javascript">DependencyInjector.prototype.resolver = function(fn, context){
+	var args = slice(arguments, 2)
+	return this.aresolver(fn, context, args)
 }</code></pre>
           <section id="resolve">
             <h1>resolve</h1>
@@ -710,27 +725,31 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
                 <td><p>to resolve</p>
 </td>
               </tr>
+              <tr>
+                <td>dependency</td>
+                <td>DependencyInjector</td>
+                <td><p>injector to use for factory resolution, used internally</p>
+</td>
+              </tr>
             </tbody>
           </table>
           <div class="description"><p>Resolves dependencies with their registered values</p>
  </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.resolve = function(deps) {
+          <pre><code class="language-javascript">DependencyInjector.prototype.resolve = function(deps, self) {
 	var registry 	= this.registry
 		, factories = this.factories
 		, parent 		= this.parent
 		, deps 			= Array.isArray(deps) ? deps : [deps]
-		, self 			= this
+		, self 			= self || this
 
 	// If we have no registered dependencies and no parent return array of undefined
-	if(!registry &amp;&amp; !this.parent) return new Array(deps.length)
+	if(!registry &amp;&amp; !this.parent) return Q(new Array(deps.length))
 
 	// Resolves the dependencies
 	return Q.all(deps.map(function(name){
 		if (registry &amp;&amp; registry[name] !== undefined) return registry[name]
-		else if(factories &amp;&amp; factories[name]){
-			return self.call(factories[name])
-		}
-		else if(parent &amp;&amp; parent.registry) return parent.resolve(name)
+		else if(factories &amp;&amp; factories[name]) return self.call(factories[name])
+		else if(parent) return parent.resolve(name, self).get(0)
 		else return undefined
 	}))
 }</code></pre>
@@ -764,7 +783,7 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
           </table>
           <div class="description"><p>Gets or sets the dependencies of a function</p>
  </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.inject = inject</code></pre>
+          <pre><code class="language-javascript">DependencyInjector.prototype.inject = DependencyInjector.inject = inject</code></pre>
           <section id="inject">
             <h1>inject</h1>
             <h5 class="subheader"></h5>
@@ -830,7 +849,7 @@ var child = new DepedencyInjector({&#39;baz&#39;: &#39;qux&#39;}, parent)</code>
           </table>
           <div class="description"><p>Gets the parameter names for a function</p>
  </div>
-          <pre><code class="language-javascript">DependencyInjector.prototype.params = params</code></pre>
+          <pre><code class="language-javascript">DependencyInjector.prototype.params = DependencyInjector.params = params</code></pre>
         </div>
       </div>
     </div>

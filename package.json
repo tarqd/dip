@@ -1,5 +1,5 @@
 {
-  "name": "promised",
+  "name": "dip",
   "version": "0.1.0",
   "description": "Simple dependency injection with promise support",
   "main": "index.js",
@@ -14,5 +14,9 @@
     "q": "~0.9.6",
     "merge": "~1.1.1",
     "sliced": "0.0.5"
+  },
+  "devDependencies": {
+    "should": "~1.2.2",
+    "mocha": "~1.11.0"
   }
 }
