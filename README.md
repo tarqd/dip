@@ -92,6 +92,7 @@ app.get('/user/:user_id/username', function(req, res, next){
 	di.create(req.params)
 	  .resolve(['username'])
 	  .spread(res.send.bind(res))
+	  .fail(next)
 })
 ```
 
