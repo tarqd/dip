@@ -32,6 +32,50 @@ function fn(foo, bar){
 })
 ```
 
+#### Promises 
+```javascript
+di.register('foo', Q('Hello').delay(1000))
+di.call(fn).then(function(result){ // called after foo promise resolves (1 second delay)
+	console.log(result)  // result == 'Hello, World!'
+})
+```
+
+#### Factories
+// Factories can return promises, factories can even be promises themselves (that resolve to functions)
+di.factory('greetingWithDate', function(foo){
+	return foo +', it is ' + new Date()
+})
+
+di.call(function(greetingWithDate){
+	console.log(greetingWithDate) // greetingWithDate = 'Hello, it is Mon Jun 24 2013 12:30:05 GMT-0400 (EDT)
+})
+
+#### Parent/Child injectors
+var child = di.create('baz', 'qux')
+child.call(function(foo, baz){
+	console.log(foo) // foo == 'Hello'
+	console.log(baz) // baz == 'qux'
+})
+
+
+### Mongoose/Express Example with Promises/Factories
+```javascript
+di.factory('user', function(user_id){
+	return User.findOne({_id: new ObjectId(user_id)})
+})
+
+di.factory('username', function(user){
+	return user.username
+})
+
+app.get('/user/:user_id/username', function(req, res){
+	var rdi = di.create(req.params)
+	rdi.call(function(username){
+		res.send(username)
+	})
+})
+```
+
 #### Manually specifying dependencies
 ```javascript
 DI.inject(fn, ['foo'])
@@ -72,5 +116,6 @@ di.resolve(deps).spread(function(foo, bar){
 	console.log(bar) // bar == 'World'
 })
 ```
+
 
 For more information read the docs (./docs/index.html) or look at the tests (./tests)
