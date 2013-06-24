@@ -81,10 +81,17 @@ app.get('/user/:user_id/username', function(req, res, next){
 
 // Another method
 app.get('/user/:user_id/username', function(req, res, next){
-	di.create(params)
+	di.create(req.params)
 	  .inject(res.send, ['username'])
 	  .call(res.send, res)
 	  .fail(next)
+})
+
+// Without using inject
+app.get('/user/:user_id/username', function(req, res, next){
+	di.create(req.params)
+	  .resolve(['username'])
+	  .spread(res.send.bind(res))
 })
 ```
 
