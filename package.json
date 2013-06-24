@@ -12,7 +12,7 @@
   "dependencies": {
     "get-parameter-names": "~0.1.1",
     "q": "~0.9.6",
-    "merge": "~1.1.1",
+    "merge": "~1.1.1"
   },
   "devDependencies": {
     "should": "~1.2.2",
