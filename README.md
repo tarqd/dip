@@ -41,6 +41,7 @@ di.call(fn).then(function(result){ // called after foo promise resolves (1 secon
 ```
 
 #### Factories
+```javascript
 // Factories can return promises, factories can even be promises themselves (that resolve to functions)
 di.factory('greetingWithDate', function(foo){
 	return foo +', it is ' + new Date()
@@ -49,16 +50,19 @@ di.factory('greetingWithDate', function(foo){
 di.call(function(greetingWithDate){
 	console.log(greetingWithDate) // greetingWithDate = 'Hello, it is Mon Jun 24 2013 12:30:05 GMT-0400 (EDT)
 })
+```
 
 #### Parent/Child injectors
+```javascript
 var child = di.create('baz', 'qux')
 child.call(function(foo, baz){
 	console.log(foo) // foo == 'Hello'
 	console.log(baz) // baz == 'qux'
 })
+```
 
 
-### Mongoose/Express Example with Promises/Factories
+#### Mongoose/Express Example with Promises/Factories
 ```javascript
 di.factory('user', function(user_id){
 	return User.findOne({_id: new ObjectId(user_id)})
@@ -84,7 +88,7 @@ DI.inject(fn, ['foo'])
 di.call(fn, context, 'Guys', 'more args').then(function(result){
 	console.log(result) // result == 'Hello, Guys!'
 })
-````
+```
 
 #### Creating a resolved function (returns a promise)
 ```javascript

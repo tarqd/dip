@@ -90,14 +90,48 @@ function fn(foo, bar){
 <pre><code class="lang-javascript"> di.call(function(foo){
      console.log(foo) // foo == &#39;Hello&#39;
 })</code></pre>
+<h4>Promises</h4>
+<pre><code class="lang-javascript">di.register(&#39;foo&#39;, Q(&#39;Hello&#39;).delay(1000))
+di.call(fn).then(function(result){ // called after foo promise resolves (1 second delay)
+    console.log(result)  // result == &#39;Hello, World!&#39;
+})</code></pre>
+<h4>Factories</h4>
+<pre><code class="lang-javascript">// Factories can return promises, factories can even be promises themselves (that resolve to functions)
+di.factory(&#39;greetingWithDate&#39;, function(foo){
+    return foo +&#39;, it is &#39; + new Date()
+})
+
+di.call(function(greetingWithDate){
+    console.log(greetingWithDate) // greetingWithDate = &#39;Hello, it is Mon Jun 24 2013 12:30:05 GMT-0400 (EDT)
+})</code></pre>
+<h4>Parent/Child injectors</h4>
+<pre><code class="lang-javascript">var child = di.create(&#39;baz&#39;, &#39;qux&#39;)
+child.call(function(foo, baz){
+    console.log(foo) // foo == &#39;Hello&#39;
+    console.log(baz) // baz == &#39;qux&#39;
+})</code></pre>
+<h4>Mongoose/Express Example with Promises/Factories</h4>
+<pre><code class="lang-javascript">di.factory(&#39;user&#39;, function(user_id){
+    return User.findOne({_id: new ObjectId(user_id)})
+})
+
+di.factory(&#39;username&#39;, function(user){
+    return user.username
+})
+
+app.get(&#39;/user/:user_id/username&#39;, function(req, res){
+    var rdi = di.create(req.params)
+    rdi.call(function(username){
+        res.send(username)
+    })
+})</code></pre>
 <h4>Manually specifying dependencies</h4>
 <pre><code class="lang-javascript">DI.inject(fn, [&#39;foo&#39;])
 // When you specify dependencies you can pass additional arguments, only specified dependencies will be resolved
 // returns a promise for the result
 di.call(fn, context, &#39;Guys&#39;, &#39;more args&#39;).then(function(result){
     console.log(result) // result == &#39;Hello, Guys!&#39;
-})
-`</code></pre>
+})</code></pre>
 <h4>Creating a resolved function (returns a promise)</h4>
 <pre><code class="lang-javascript">var fn = di.resolved(fn)
 fn().then(function(result){
